@@ -28,7 +28,8 @@ RUN /usr/local/share/add-apt-source/src/add-apt-launchpad-ppa.sh deadsnakes ppa
 RUN apt-get update -qq
 
 ## Install Python3.13
-RUN apt-get install --yes --no-install-recommends python3.13
+## we don't use the 'pyvenv' command. but we need python3.13-venv as it provides the 'ensurepip' module
+RUN apt-get install --yes --no-install-recommends python3.13 python3.13-venv
 
 ## Create 'student' user and allow them to 'sudo'
 ## Ref: https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
