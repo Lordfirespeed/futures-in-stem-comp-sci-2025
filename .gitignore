@@ -1,0 +1,35 @@
+# Exclude everything
+/*
+
+# Specific includes
+
+## Editorconfig
+!.editorconfig
+
+## Markdowns
+!*.md
+!/LICENSE
+!/licenses
+
+## important Git files
+!.gitmodules
+!.gitignore
+!.gitattributes
+!.git-blame-ignore-revs
+
+## Git submodules
+!/submodules
+
+## GitHub specific
+!.github/
+
+## Teaching materials
+!/logic-circuits
+
+## codespace image build
+!/docker
+
+# Explicit exceptions/ignores
+**.user
+**.local
+!**.template.*.user
