@@ -15,8 +15,8 @@ ENV LANG=en_GB.UTF-8
 ## Set timezone
 ENV TZ="Europe/London"
 
-## Install git and ca-certificates
-RUN apt-get install --yes --no-install-recommends git-all ca-certificates
+## Install miscellaneous apt packages
+RUN apt-get install --yes --no-install-recommends git-all ca-certificates curl gnupg
 
 ## Setup `add-apt-launchpad-ppa`
 COPY submodules/add-apt-source /usr/local/share/add-apt-source/
@@ -43,3 +43,11 @@ RUN apt-get install --yes --no-install-recommends sudo \
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends \
     && rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
     && rm -rf /var/lib/apt/lists/*
+
+## Install uv
+## Ref: https://docs.astral.sh/uv/getting-started/installation/#installation-methods
+USER $USERNAME
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+## Switch build user back to root
+USER root
