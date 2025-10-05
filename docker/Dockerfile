@@ -13,7 +13,7 @@ ENV LC_ALL=en_GB.UTF-8
 ENV LANG=en_GB.UTF-8
 
 ## Set timezone
-RUN timedatectl set-timezone "Europe/London"
+ENV TZ="Europe/London"
 
 ## Install git and ca-certificates
 RUN apt-get install --yes --no-install-recommends git-all ca-certificates
