@@ -40,9 +40,54 @@ jobs:
           docker load --input ${{ runner.temp }}/image.tar
           docker image ls -a
 
+      # https://github.com/docker/metadata-action/issues/407#issuecomment-2692551092
+      - name: 'Find the latest release tag (determined by semver sort)'
+        id: find-latest-version
+        env:
+          REPO_URL: ${{ github.event.repository.html_url }}
+          # Filter for semver tags like: v1.2.34 (Ignores versions with pre-release identifiers and/or build metadata)
+          TAG_FILTER: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$'
+          # Retrieves the tags for the repo sorted by version in descending order,
+          # `awk` strips away the first column (commit hash)
+          # `grep` filters the tags to only those we care about
+          # `head` takes the top/first line which is the highest ranged semver tag
+          # The result has `refs/tags/v` prefixing the semver value, similar to `github.ref`
+        run: |
+          TAGS=$(
+            git ls-remote --exit-code --refs --tags --sort='-v:refname' "${REPO_URL}" \
+            | awk '{print $2}' | grep -E "${TAG_FILTER}" 
+          )
+          LATEST_TAG=$(echo "$TAGS" | head -n 1)
+          echo "latest-version=${LATEST_TAG}" >> "${GITHUB_OUTPUT}"
+          
+          CURRENT_VERSION_MAJOR=$(echo ${{ github.event.release.tag_name }} | cut -d . -f 1)
+          LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAGS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1)
+          echo "latest-version-matching-current-major=${LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR}" >> "${GITHUB_OUTPUT}"
+
+      - name: 'Prepare image tags'
+        id: metadata
+        uses: docker/metadata-action@v5
+        env:
+          is-latest-tag: ${{ github.event.release.tag_name == steps.find-latest-version.outputs.latest-version }}
+          is-latest-tag-in-major: ${{ github.event.release.tag_name == steps.find-latest-version.outputs.latest-version-matching-current-major }}
+          is-not-major-zero-ver: ${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+        with:
+          # WORKAROUND: Prevents accidentally overwriting `latest` + semver tags:
+          # https://github.com/docker/metadata-action/issues/461#issuecomment-2686558629
+          flavor: |
+            latest=${{ env.is-latest-tag }}
+            prefix=v
+          # `edge` tag is used for development images between tagged releases:
+          # Release tags (implicitly adds `latest` tag unless tag belongs to an older release series):
+          tags: |
+            type=semver,pattern={{major}},enable=${{ fromJSON(env.is-latest-tag-in-major) && fromJSON(env.is-not-major-zero-ver) }}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}.{{minor}}.{{patch}}
+          sep-tags: " "
+
       - name: Tag built image
         run: |
-          docker image tag ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:${{ github.event.release.tag_name }}
+          docker image tag ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev ${{ steps.metadata.outputs.tags }}
           docker image rm ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev
 
       - name: Login to GitHub Container Registry
