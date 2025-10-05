@@ -58,16 +58,16 @@ jobs:
             | awk '{print $2}' | grep -E "${TAG_FILTER}" 
           )
           echo "all tag refs:"
-          echo "TAG_REFS"
+          echo "$TAG_REFS"
           echo
 
-          LATEST_TAG=$(echo "$TAGS" | head -n 1 | cut -d / -f 3)
+          LATEST_TAG=$(echo "$TAG_REFS" | head -n 1 | cut -d / -f 3)
           echo "latest-version=${LATEST_TAG}" >> "${GITHUB_OUTPUT}"
           echo "latest tag: $LATEST_TAG"
           echo
           
           CURRENT_VERSION_MAJOR=$(echo ${{ github.event.release.tag_name }} | cut -d . -f 1)
-          LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAGS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1 | cut -d / -f 3)
+          LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAG_REFS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1 | cut -d / -f 3)
           echo "latest-version-matching-current-major=${LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR}" >> "${GITHUB_OUTPUT}"
           echo "latest-in-major tag: $LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR"
 
