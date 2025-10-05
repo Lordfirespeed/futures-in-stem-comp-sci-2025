@@ -57,12 +57,19 @@ jobs:
             git ls-remote --exit-code --refs --tags --sort='-v:refname' "${REPO_URL}" \
             | awk '{print $2}' | grep -E "${TAG_FILTER}" 
           )
+          echo "all tags:"
+          echo "$TAGS"
+          echo
+
           LATEST_TAG=$(echo "$TAGS" | head -n 1)
           echo "latest-version=${LATEST_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "latest tag: $LATEST_TAG"
+          echo
           
           CURRENT_VERSION_MAJOR=$(echo ${{ github.event.release.tag_name }} | cut -d . -f 1)
           LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAGS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1)
           echo "latest-version-matching-current-major=${LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR}" >> "${GITHUB_OUTPUT}"
+          echo "latest-in-major tag: $LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR"
 
       - name: 'Prepare image tags'
         id: metadata
