@@ -19,15 +19,10 @@ ENV TZ="Europe/London"
 RUN apt-get install --yes --no-install-recommends git-all ca-certificates
 
 ## Setup `add-apt-launchpad-ppa`
-COPY ../submodules/add-apt-source /usr/local/share/
-WORKDIR /usr/local/share/add-apt-source
-RUN git clean -dfX \
-    && rm -rf .git \
-    && ln -s ../add-apt-source/add-apt-launchpad-ppa.sh /usr/local/bin/add-apt-launchpad-ppa
-WORKDIR /
+COPY submodules/add-apt-source /usr/local/share/add-apt-source/
 
 ## Add deadsnakes PPA
-RUN add-apt-launchpad-ppa deadsnakes ppa
+RUN /usr/local/share/add-apt-source/src/add-apt-launchpad-ppa.sh deadsnakes ppa
 
 ## Update apt package lists
 RUN apt-get update -qq
