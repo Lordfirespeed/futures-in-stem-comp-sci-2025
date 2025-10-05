@@ -94,7 +94,12 @@ jobs:
 
       - name: Tag built image
         run: |
-          docker image tag ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev ${{ steps.metadata.outputs.tags }}
+          IMAGE_TAGS=(${{ steps.metadata.outputs.tags }})
+          for IMAGE_TAG in "${IMAGE_TAGS[@]}"; do
+            docker image tag \
+              ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev \
+              ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:"$IMAGE_TAG"
+          done
           docker image rm ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev
 
       - name: Login to GitHub Container Registry
