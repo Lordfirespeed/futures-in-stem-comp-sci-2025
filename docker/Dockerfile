@@ -33,15 +33,11 @@ RUN apt-get install --yes --no-install-recommends python3.13
 ## Create 'student' user and allow them to 'sudo'
 ## Ref: https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 ARG USERNAME=student
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
 RUN apt-get install --yes --no-install-recommends sudo \
-    && groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME \
+    && usermod vscode --home "/home/$USERNAME" --login "$USERNAME" \
+    && rm /etc/sudoers.d/vscode \
     && echo "$USERNAME ALL=\(root\) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" \
     && chmod 0440 "/etc/sudoers.d/$USERNAME"
-## Set the default user
-USER $USERNAME
 
 ## Configure apt & tidy up
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/90local-no-recommends \
