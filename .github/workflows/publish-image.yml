@@ -1,4 +1,4 @@
-name: Build and Push RStudio Docker Image
+name: Publish codespace image
 
 on:
   release:
