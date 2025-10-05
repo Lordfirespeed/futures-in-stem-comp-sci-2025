@@ -44,7 +44,7 @@ jobs:
         file: docker/Dockerfile
         context: .
         tags: "ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev"
-        outputs: type=docker,dest=${{ runner.temp }}/myimage.tar
+        outputs: type=docker,dest=${{ runner.temp }}/image.tar
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
