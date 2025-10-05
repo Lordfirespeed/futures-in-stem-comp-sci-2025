@@ -35,7 +35,7 @@ RUN apt-get install --yes --no-install-recommends python3.13 python3.13-venv
 ## Ref: https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
 ARG USERNAME=student
 RUN apt-get install --yes --no-install-recommends sudo \
-    && usermod vscode --home "/home/$USERNAME" --login "$USERNAME" \
+    && usermod vscode --home "/home/$USERNAME" --move-home --login "$USERNAME" \
     && rm /etc/sudoers.d/vscode \
     && echo "$USERNAME ALL=\(root\) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" \
     && chmod 0440 "/etc/sudoers.d/$USERNAME"
