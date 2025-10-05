@@ -1,0 +1,53 @@
+name: Build and Push RStudio Docker Image
+
+on:
+  # Trigger the workflow on pushes to only the 'main' branch (this avoids duplicate checks being run e.g., for dependabot pull requests)
+  push:
+    branches: [ main ]
+
+  # Trigger the workflow on any pull request
+  pull_request:
+
+  # Trigger the workflow when called by another workflow
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Fetch sources
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref || null }}
+        fetch-depth: 0
+        filter: tree:0
+        submodules: recursive
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and export
+      uses: docker/build-push-action@v6
+      with:
+        file: docker/Dockerfile
+        context: .
+        tags: "ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev"
+        outputs: type=docker,dest=${{ runner.temp }}/myimage.tar
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: image
+        path: ${{ runner.temp }}/image.tar

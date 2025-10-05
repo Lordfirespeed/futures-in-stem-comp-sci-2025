@@ -1,0 +1,54 @@
+name: Build and Push RStudio Docker Image
+
+on:
+  release:
+    types: [ prereleased, released ]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    uses: './.github/workflows/build-image.yml'
+    with:
+      ref: ${{ github.event.release.tag_name }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          filter: tree:0
+          submodules: recursive
+
+      - name: Download built image
+        uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: ${{ runner.temp }}
+
+      - name: Load built image
+        run: |
+          docker load --input ${{ runner.temp }}/image.tar
+          docker image ls -a
+
+      - name: Tag built image
+        run: |
+          docker image tag ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:${{ github.event.release.tag_name }}
+          docker image rm ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025:dev
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish image to GitHub Container Registry
+        run: |
+          docker push --all-tags ghcr.io/lordfirespeed/futures-in-stem-comp-sci-2025
