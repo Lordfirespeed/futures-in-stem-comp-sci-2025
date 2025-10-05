@@ -1,0 +1,3 @@
+[submodule "submodules/add-apt-source"]
+	path = submodules/add-apt-source
+	url = https://github.com/Lordfirespeed/add-apt-source
