@@ -53,21 +53,21 @@ jobs:
           # `head` takes the top/first line which is the highest ranged semver tag
           # The result has `refs/tags/v` prefixing the semver value, similar to `github.ref`
         run: |
-          TAGS=$(
+          TAG_REFS=$(
             git ls-remote --exit-code --refs --tags --sort='-v:refname' "${REPO_URL}" \
             | awk '{print $2}' | grep -E "${TAG_FILTER}" 
           )
-          echo "all tags:"
-          echo "$TAGS"
+          echo "all tag refs:"
+          echo "TAG_REFS"
           echo
 
-          LATEST_TAG=$(echo "$TAGS" | head -n 1)
+          LATEST_TAG=$(echo "$TAGS" | head -n 1 | cut -d / -f 3)
           echo "latest-version=${LATEST_TAG}" >> "${GITHUB_OUTPUT}"
           echo "latest tag: $LATEST_TAG"
           echo
           
           CURRENT_VERSION_MAJOR=$(echo ${{ github.event.release.tag_name }} | cut -d . -f 1)
-          LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAGS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1)
+          LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR=$(echo "$TAGS" | grep -E "^refs/tags/$CURRENT_VERSION_MAJOR" | head -n 1 | cut -d / -f 3)
           echo "latest-version-matching-current-major=${LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR}" >> "${GITHUB_OUTPUT}"
           echo "latest-in-major tag: $LATEST_TAG_MATCHING_CURRENT_VERSION_MAJOR"
 
