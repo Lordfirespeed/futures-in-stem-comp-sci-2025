@@ -17,6 +17,9 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
